@@ -12,7 +12,7 @@ module.exports = (robot) ->
     bungieService.testAPI (err, res) ->
       if err
         return msg.send err
-      msg.send res
+      msg.send "```#{res}```"
 
   robot.respond /how many characters does (.+?) have/i, (msg) ->
     gamerTag = msg.match[1]
@@ -29,4 +29,8 @@ module.exports = (robot) ->
           simpleCharacter.emblem = "https://www.bungie.net#{character.emblemPath}"
           characters.push simpleCharacter
 
-      msg.send "#{gamerTag} has #{characters.length} characters: (#{JSON.stringify(characters)})"
+      ghostResponse = "#{gamerTag} has #{characters.length} characters:\n"
+      for character in characters
+        ghostResponse += "#{character.emblem} Level #{character.level} and #{character.lightLevel} Light\n"
+
+      msg.reply ghostResponse
