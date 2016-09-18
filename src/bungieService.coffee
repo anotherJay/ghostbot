@@ -9,11 +9,11 @@ DEFAULT_PLATFORM = 1 # XBOX Live
 
 GAME_MODES =
         "crimson doubles" : 523
+        "trials of osiris": 14
         "too": 14
         "trials": 14
-        "trials of osiris": 14
-        "ib": 19
         "iron banner": 19
+        "ib": 19
         "control": 10
         "clash": 12
         "rift": 24
@@ -28,6 +28,42 @@ GAME_MODES =
 class BungieService
 
   constructor: () ->
+
+  getPlayerGuardianGGInfo: (gamerTag, callback) ->
+
+    this.searchDestinyPlayer gamerTag, (err, res) =>
+      if err
+        return callback err
+
+      memberId = res.memberId
+      realGamerTag = res.gamerTag
+
+      options =
+        timeout: 2000
+        url: "#{GUARDIANGG_API_BASE_URL}/v2/players/#{memberId}"
+        json: true
+
+      console.log "Calling endpoint #{options.url}"
+      request options, (error, response, body) =>
+        if error or response.statusCode != 200
+          return callback "There was an error retreiving the guardian's elo: #{error or body}"
+
+        player =
+          gamerTag: body.data.name
+          modes: {}
+
+        for k, v of body.data.modes
+          modeName = this.getGameModeById k
+          if( !modeName )
+            console.log "Couldn't find modeName for #{k}"
+          else
+            v.modeName = modeName
+            v.kd = Math.round((v.kills/v.deaths) * 100) / 100
+            v.kda = Math.round(((v.kills + v.assists) / v.deaths) * 100) / 100
+            v.elo = Math.round(v.elo)
+            player.modes[modeName] = v
+
+        callback null, player
 
   getElo: (gamerTag, gameMode, callback) ->
     modeId = this.getGameMode gameMode.toLowerCase()
@@ -57,6 +93,11 @@ class BungieService
   getGameMode: (modeName) ->
     return GAME_MODES[modeName]
 
+  getGameModeById: (modeId) ->
+    for k,v of GAME_MODES
+      return k if parseInt(v) == parseInt(modeId)
+    return null
+
   searchDestinyPlayer: (gamerTag, callback) ->
     options =
       timeout: 2000
@@ -68,8 +109,8 @@ class BungieService
 
     console.log "Calling endpoint #{options.url}"
     request options, (error, response, body) ->
-      if error or response.statusCode != 200
-        return callback "There was an error retreiving the guardian info: #{error or body}"
+      if error or response.statusCode != 200 or body.Response.length == 0
+        return callback "There was an error retreiving the guardian info for #{gamerTag}: #{error or body}"
 
       player =
         memberId: body.Response[0].membershipId
@@ -78,7 +119,7 @@ class BungieService
       callback null, player
 
 
-  getPlayerInfo: (gamerTag, callback) ->
+  getPlayerSummary: (gamerTag, callback) ->
     this.searchDestinyPlayer gamerTag, (err, res) ->
       if err
         return callback err
@@ -98,6 +139,8 @@ class BungieService
           return callback "There was an error retreiving the guardian info: #{error or body}"
 
         callback null, body.Response
+
+
 
   testAPI: (callback) ->
     options =

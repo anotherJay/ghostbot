@@ -33,7 +33,7 @@ module.exports = (robot) ->
   robot.respond /how many characters does (.+?) have/i, (msg) ->
     gamerTag = msg.match[1]
 
-    bungieService.getPlayerInfo gamerTag, (err, res) ->
+    bungieService.getPlayerSummary gamerTag, (err, res) ->
       if err
         return msg.send err
 
@@ -50,3 +50,15 @@ module.exports = (robot) ->
         ghostResponse += "#{character.emblem} Level #{character.level} and #{character.lightLevel} Light\n"
 
       msg.reply ghostResponse
+
+  robot.respond /what about (.+?)\?*$/i, (msg) ->
+      gamerTag = msg.match[1]
+      bungieService.getPlayerGuardianGGInfo gamerTag, (err, res) ->
+        if err
+          return msg.send err
+
+        ghostResponse = "```#{res.gamerTag}:\n"
+        for k,v of res.modes
+          ghostResponse += "\t#{k}: k/d: #{v.kd}, k/da: #{v.kda}, elo: #{v.elo}, games: #{v.gamesPlayed}\n"
+        ghostResponse += "```"
+        msg.reply ghostResponse
