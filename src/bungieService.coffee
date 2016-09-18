@@ -34,20 +34,12 @@ class BungieService
     if !modeId
       return callback "The game mode #{gameMode} is not valid"
 
-    options =
-      timeout: 2000
-      url: "#{BUNGIE_API_BASE_URL}/#{DEFAULT_PLATFORM}/Stats/GetMembershipIdByDisplayName/#{gamerTag}"
-      json: true
-      headers:
-        'X-API-Key': BUNGIE_API_KEY
+    this.searchDestinyPlayer gamerTag, (err, res) ->
+      if err
+        return callback err
 
-
-    console.log "Calling endpoint #{options.url}"
-    request options, (error, response, body) ->
-      if error or response.statusCode != 200
-        return callback "There was an error retreiving the guardian's member id: #{error or body}"
-
-      memberId = body.Response
+      memberId = res.memberId
+      realGamerTag = res.gamerTag
 
       options =
         timeout: 2000
@@ -65,19 +57,33 @@ class BungieService
   getGameMode: (modeName) ->
     return GAME_MODES[modeName]
 
-  getPlayerInfo: (gamerTag, callback) ->
+  searchDestinyPlayer: (gamerTag, callback) ->
     options =
       timeout: 2000
-      url: "#{BUNGIE_API_BASE_URL}/#{DEFAULT_PLATFORM}/Stats/GetMembershipIdByDisplayName/#{gamerTag}"
+      url: "#{BUNGIE_API_BASE_URL}/SearchDestinyPlayer/#{DEFAULT_PLATFORM}/#{gamerTag}"
       json: true
       headers:
         'X-API-Key': BUNGIE_API_KEY
+    player = null
 
+    console.log "Calling endpoint #{options.url}"
     request options, (error, response, body) ->
       if error or response.statusCode != 200
         return callback "There was an error retreiving the guardian info: #{error or body}"
 
-      memberId = body.Response
+      player =
+        memberId: body.Response[0].membershipId
+        gamerTag: body.Response[0].displayName
+
+      callback null, player
+
+
+  getPlayerInfo: (gamerTag, callback) ->
+    this.searchDestinyPlayer gamerTag, (err, res) ->
+      if err
+        return callback err
+
+      memberId = res.memberId
 
       options =
         timeout: 2000
@@ -86,6 +92,7 @@ class BungieService
         headers:
           'X-API-Key': BUNGIE_API_KEY
 
+      console.log "Calling endpoint #{options.url}"
       request options, (error, response, body) ->
         if error or response.statusCode != 200
           return callback "There was an error retreiving the guardian info: #{error or body}"
@@ -95,13 +102,12 @@ class BungieService
   testAPI: (callback) ->
     options =
       timeout: 2000
-      url: "#{BUNGIE_API_BASE_URL}/vanguard/grimoire/2/4611686018437163478/"
+      url: "#{BUNGIE_API_BASE_URL}/manifest"
       json: true
       headers:
         'X-API-Key': BUNGIE_API_KEY
 
-    console.log options
-
+    console.log "Calling endpoint #{options.url}"
     request options, (error, response, body) ->
       if error or response.statusCode != 200
         return callback "There was an error opening the door: #{error or body}"
