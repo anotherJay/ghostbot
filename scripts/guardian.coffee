@@ -14,6 +14,16 @@ module.exports = (robot) ->
         return msg.send err
       msg.send "```#{res}```"
 
+  robot.respond /elo for (.+?) in (.+?)$/i, (msg) ->
+    gamerTag = msg.match[1]
+    gameMode = msg.match[2]
+    bungieService.getElo gamerTag, gameMode, (err, res) ->
+      if err
+        return msg.send err
+
+      ghostResponse = "#{gamerTag}'s elo in #{gameMode} is #{res.elo} (ranked \##{res.rank})"
+      msg.reply ghostResponse
+
   robot.respond /how many characters does (.+?) have/i, (msg) ->
     gamerTag = msg.match[1]
 

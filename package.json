@@ -4,6 +4,8 @@
   "private": true,
   "author": "Jason St. Louis <jason.stlouis@gmail.com>",
   "description": "A Destiny bot for slack",
+  "scripts": {
+  },
   "dependencies": {
     "hubot": "^2.19.0",
     "hubot-diagnostics": "0.0.1",
@@ -21,6 +23,6 @@
     "request": "^2.74.0"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "6.6.0"
   }
 }
