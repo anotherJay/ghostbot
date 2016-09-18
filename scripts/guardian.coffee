@@ -21,7 +21,7 @@ module.exports = (robot) ->
       if err
         return msg.send err
 
-      ghostResponse = "#{gamerTag}'s elo in #{gameMode} is #{res.elo} (ranked \##{res.rank})"
+      ghostResponse = "#{gamerTag}'s elo in #{gameMode} is #{Math.round(res.elo)} (ranked \##{res.rank})"
       msg.reply ghostResponse
 
   robot.respond /how many characters does (.+?) have/i, (msg) ->
