@@ -1,6 +1,10 @@
 # Description:
 #   Responses to questions about guardians
-
+# Commands:
+# hubot elo for (gamerTag) in (playlist) - returns the elo for the given gamerTag in the provided playlist
+# hubot how many characters does (gamerTag) have? - returns info about characters for the given gamerTag
+# hubot what about (gamerTag)? - provides pvp statistics for the given gamerTag in all playlists
+#
 
 BungieService = require('../src/bungieService.coffee')
 

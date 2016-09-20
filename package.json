@@ -20,7 +20,10 @@
     "hubot-scripts": "^2.17.2",
     "hubot-shipit": "^0.2.0",
     "hubot-slack": "^4.0.5",
-    "request": "^2.74.0"
+    "request": "^2.74.0",
+    "hubot-thesimpsons": ">= 0.0.0",
+    "hubot-reaction": ">= 0.0.0",
+    "hubot-meme": ">= 0.0.0"
   },
   "engines": {
     "node": "6.6.0"
